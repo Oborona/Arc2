@@ -3,8 +3,6 @@
 ItemManager::ItemManager()
 {
     borders = QRect(0, 0, 600, 600);
-
-    actors.append();
 }
 
 
@@ -102,11 +100,35 @@ QPoint ItemManager::calcPoint(ArcItem* still, ArcItem* moving, int side)
 
 void ItemManager::checkCollisions()
 {
-
+    QList<Collision4x>* colls;
     for (int i = 0; i < actors.size(); i++)
     {
         if (actors[i]->isKinematic())
+        {
+            for (int j = 0; j < actors.size(); j++)
+            {
+                if (!actors[j]->isKinematic())
+                {
+                    colls = actors[j]->getDebugColl();
+                    // Some not obivious thing
+                    // Surely strange colls solution, maybe must be rewritten
+                    qDebug() << colls->at(0).top;
+                    for (int k = 0; k < colls->size(); k++)
+                    {
+                        if (actors[i]->contains(colls->at(k).top) ||
+                            actors[i]->contains(colls->at(k).bottom))
+                        {
+                            actors[i]->invertSpeed(VERTICAL);
+                            qDebug() << actors[i]->pos() << colls->at(k).top << colls->at(k).bottom;
+                        }
+                        if (actors[i]->contains(colls->at(k).left) ||
+                            actors[i]->contains(colls->at(k).right))
+                            actors[i]->invertSpeed(HORIZONTAL);
+                    }
+                }
+            }
             continue;
+        }
         actors[i]->clearDebugColl();
         for (int j = 0; j < actors.size(); j++)
         {

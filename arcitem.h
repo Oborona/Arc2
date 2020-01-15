@@ -55,6 +55,7 @@ public:
 
     // for debug
     QList<Collision4x> debugColl;
+    QList<Collision4x>* getDebugColl() { return &debugColl; }
     void clearDebugColl() { debugColl.clear(); }
     void appendColl(Collision4x coll) { debugColl.append(coll); }
 

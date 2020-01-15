@@ -2,7 +2,7 @@
 
 MainWindow::MainWindow(QWidget *parent) : QWidget(parent)
 {
-    QRect sceneBorders(0, 0, 600, 600);
+    sceneBorders = QRect(0, 0, 600, 600);
     layout = new QGridLayout(this);
 
     scene = new QGraphicsScene(this);
@@ -23,7 +23,36 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent)
 
 void MainWindow::setupEnviroment()
 {
+    // Scene border items
+    int offset = 50;
     ArcItem* i = new ArcItem();
+    i->setSize(offset, sceneBorders.height());
+    i->setPos(-offset, 0);
+    scene->addItem(i);
+    manager->addActor(i);
+
+    i = new ArcItem();
+    i->setSize(offset, sceneBorders.height());
+    i->setPos(sceneBorders.width(), 0);
+    scene->addItem(i);
+    manager->addActor(i);
+
+    i = new ArcItem();
+    i->setSize(sceneBorders.width(), offset);
+    i->setPos(0, -offset);
+    scene->addItem(i);
+    manager->addActor(i);
+
+    i = new ArcItem();
+    i->setSize(sceneBorders.width(), offset);
+    i->setPos(0, sceneBorders.height());
+    scene->addItem(i);
+    manager->addActor(i);
+
+
+
+
+    i = new ArcItem();
     i->setPos(100, 100);
     i->setSize(20, 20);
     i->setKinematic(true);

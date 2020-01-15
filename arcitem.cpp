@@ -47,14 +47,12 @@ void ArcItem::updateItem()
 {
     if (isKinematic())
         this->setPos(pos() + speed);
-//    this->clearDebugColl();
-
-//    restSpeed = speed;
-//    //position += speed;
-//    newPosition = position;
 }
 
 void ArcItem::invertSpeed(int dir)
 {
-
+    if (dir == VERTICAL)
+        speed.setX(-speed.x());
+    if (dir == HORIZONTAL)
+        speed.setY(-speed.y());
 }

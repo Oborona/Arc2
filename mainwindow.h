@@ -16,6 +16,8 @@ class MainWindow : public QWidget
     Q_OBJECT
 public:
     explicit MainWindow(QWidget *parent = 0);
+    QRect sceneBorders;
+
     QGridLayout* layout;
     QGraphicsView* view;
     QGraphicsScene* scene;
