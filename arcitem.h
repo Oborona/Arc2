@@ -42,9 +42,11 @@ public:
     bool collidesWith(QRectF borders);
     void updateItem();
 
+    int gotPoint(QRectF borders);
     void updatePosition() { newPosition.setX(pos().x()); newPosition.setY(pos().y()); }
 
     // Getters
+    QString getName() { return name; }
     bool isKinematic() { return kinematic; }
     QPoint getSpeed() { return speed; }
     QPoint getSize() { return QPoint(width, height); }
@@ -54,12 +56,13 @@ public:
     void invertSpeed(int dir);
 
     // for debug
+    QString name;
     QList<Collision4x> debugColl;
-    QList<Collision4x>* getDebugColl() { return &debugColl; }
     void clearDebugColl() { debugColl.clear(); }
     void appendColl(Collision4x coll) { debugColl.append(coll); }
 
     // Setters
+    void setName(QString nn) { name = nn; }
     void setSize (int w, int h) { width = w, height = h; }
     void setSpeed (QPoint p) { speed = p; }
     void setKinematic(bool b) { kinematic = b; }

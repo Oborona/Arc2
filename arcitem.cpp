@@ -49,6 +49,22 @@ void ArcItem::updateItem()
         this->setPos(pos() + speed);
 }
 
+int ArcItem::gotPoint(QRectF borders)
+{
+    for (int i = 0; i < debugColl.size(); i++)
+    {
+        if (borders.contains(debugColl.at(i).top))
+            return HORIZONTAL;
+        if (borders.contains(debugColl.at(i).bottom))
+            return HORIZONTAL;
+        if (borders.contains(debugColl.at(i).left))
+            return VERTICAL;
+        if (borders.contains(debugColl.at(i).right))
+            return VERTICAL;
+    }
+    return -1;
+}
+
 void ArcItem::invertSpeed(int dir)
 {
     if (dir == VERTICAL)

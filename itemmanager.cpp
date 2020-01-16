@@ -100,31 +100,24 @@ QPoint ItemManager::calcPoint(ArcItem* still, ArcItem* moving, int side)
 
 void ItemManager::checkCollisions()
 {
-    QList<Collision4x>* colls;
+    QList<Collision4x> colls;
     for (int i = 0; i < actors.size(); i++)
     {
         if (actors[i]->isKinematic())
         {
             for (int j = 0; j < actors.size(); j++)
             {
+                if (i == j)
+                    continue;
                 if (!actors[j]->isKinematic())
                 {
-                    colls = actors[j]->getDebugColl();
-                    // Some not obivious thing
-                    // Surely strange colls solution, maybe must be rewritten
-                    qDebug() << colls->at(0).top;
-                    for (int k = 0; k < colls->size(); k++)
-                    {
-                        if (actors[i]->contains(colls->at(k).top) ||
-                            actors[i]->contains(colls->at(k).bottom))
-                        {
-                            actors[i]->invertSpeed(VERTICAL);
-                            qDebug() << actors[i]->pos() << colls->at(k).top << colls->at(k).bottom;
-                        }
-                        if (actors[i]->contains(colls->at(k).left) ||
-                            actors[i]->contains(colls->at(k).right))
-                            actors[i]->invertSpeed(HORIZONTAL);
-                    }
+                    // Seems weird
+                    QRect rect;
+                    rect.setX(actors[i]->x());
+                    rect.setY(actors[i]->y());
+                    rect.setWidth(actors[i]->getWidth());
+                    rect.setHeight(actors[i]->getHeight());
+                    actors[i]->invertSpeed(actors[j]->gotPoint(rect));
                 }
             }
             continue;
@@ -138,9 +131,13 @@ void ItemManager::checkCollisions()
                 continue;
             Collision4x c = getItemCollision(actors[i], actors[j]);
             actors[i]->appendColl(c);
+            qDebug() << actors[i]->name << c.top << c.bottom << c.left << c.right;
         }
     }
 }
+
+
+
 
 void ItemManager::advance()
 {

@@ -56,6 +56,7 @@ void MainWindow::setupEnviroment()
     i->setPos(100, 100);
     i->setSize(20, 20);
     i->setKinematic(true);
+    i->setName("First ball");
     i->setSpeed(QPoint(3, 8));
     scene->addItem(i);
     manager->addActor(i);
@@ -64,6 +65,7 @@ void MainWindow::setupEnviroment()
     i->setPos(250, 180);
     i->setSize(30, 30);
     i->setKinematic(true);
+    i->setName("Second ball");
     i->setSpeed(QPoint(-5, 1));
     scene->addItem(i);
     manager->addActor(i);
@@ -71,6 +73,7 @@ void MainWindow::setupEnviroment()
     i = new ArcItem();
     i->setPos(100, 200);
     i->setSize(100, 30);
+    i->setName("First rect");
     i->setSpeed(QPoint(0, 0));
     scene->addItem(i);
     manager->addActor(i);
@@ -78,6 +81,7 @@ void MainWindow::setupEnviroment()
     i = new ArcItem();
     i->setPos(100, 300);
     i->setSize(100, 30);
+    i->setName("Second rect");
     i->setSpeed(QPoint(0, 0));
     scene->addItem(i);
     manager->addActor(i);
