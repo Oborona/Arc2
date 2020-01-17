@@ -9,10 +9,10 @@ ItemManager::ItemManager()
 Collision4x ItemManager::getItemCollision(ArcItem* still, ArcItem* moving)
 {
     Collision4x coll;
-    coll.left   = calcPoint(still, moving, SIDE_LEFT);
-    coll.right  = calcPoint(still, moving, SIDE_RIGHT);
-    coll.top    = calcPoint(still, moving, SIDE_TOP);
-    coll.bottom = calcPoint(still, moving, SIDE_BOTTOM);
+    coll.points[SIDE_TOP]    = calcPoint(still, moving, SIDE_TOP);
+    coll.points[SIDE_BOTTOM] = calcPoint(still, moving, SIDE_BOTTOM);
+    coll.points[SIDE_LEFT]   = calcPoint(still, moving, SIDE_LEFT);
+    coll.points[SIDE_RIGHT]  = calcPoint(still, moving, SIDE_RIGHT);
 
     return coll;
 }
@@ -117,7 +117,8 @@ void ItemManager::checkCollisions()
                     rect.setY(actors[i]->y());
                     rect.setWidth(actors[i]->getWidth());
                     rect.setHeight(actors[i]->getHeight());
-                    actors[i]->invertSpeed(actors[j]->gotPoint(rect));
+                    actors[i]->invertSpeed(actors[j]->collIsInRect(rect));
+
                 }
             }
             continue;
@@ -131,13 +132,10 @@ void ItemManager::checkCollisions()
                 continue;
             Collision4x c = getItemCollision(actors[i], actors[j]);
             actors[i]->appendColl(c);
-            qDebug() << actors[i]->name << c.top << c.bottom << c.left << c.right;
+//            qDebug() << actors[i]->name << c.top << c.bottom << c.left << c.right;
         }
     }
 }
-
-
-
 
 void ItemManager::advance()
 {

@@ -4,32 +4,30 @@
 #include <QDebug>
 #include <QGraphicsItem>
 #include <QPainter>
+#include <qmath.h>
 
-#define SIDE_LEFT 0
-#define SIDE_RIGHT 1
-#define SIDE_TOP 2
-#define SIDE_BOTTOM 3
+#define SIDE_TOP 0
+#define SIDE_BOTTOM 1
+#define SIDE_LEFT 2
+#define SIDE_RIGHT 3
 #define VERTICAL 0
 #define HORIZONTAL 1
 
 
 struct Collision4x
 {
-    QPoint top;
-    QPoint bottom;
-    QPoint left;
-    QPoint right;
+    QList<QPoint> points;
 
-    bool operator ==(const Collision4x& b) const
-    {
-        if (this->top    == b.top   &&
-            this->left   == b.left  &&
-            this->right  == b.right &&
-            this->bottom == b.bottom)
-            return true;
-        else
-            return false;
-    }
+//    bool operator ==(const Collision4x& b) const
+//    {
+//        if (this->top    == b.top   &&
+//            this->left   == b.left  &&
+//            this->right  == b.right &&
+//            this->bottom == b.bottom)
+//            return true;
+//        else
+//            return false;
+//    }
 };
 
 class ArcItem : public QGraphicsItem
@@ -41,9 +39,9 @@ public:
     QRectF boundingRect() const;
     bool collidesWith(QRectF borders);
     void updateItem();
+    void calcSpeedPoints();
 
-    int gotPoint(QRectF borders);
-    void updatePosition() { newPosition.setX(pos().x()); newPosition.setY(pos().y()); }
+    int collIsInRect(QRectF borders);
 
     // Getters
     QString getName() { return name; }
@@ -54,10 +52,13 @@ public:
     int getHeight() { return height; }
     QPoint getCenter() { return QPoint(x()+ width/2, y()+height/2); }
     void invertSpeed(int dir);
+    int speedModule() { return qSqrt(speed.x()*speed.x() + speed.y()*speed.y()); }
 
     // for debug
     QString name;
     QList<Collision4x> debugColl;
+    QPoint speedEdgePos;
+    QPoint speedEndPos;
     void clearDebugColl() { debugColl.clear(); }
     void appendColl(Collision4x coll) { debugColl.append(coll); }
 
@@ -69,7 +70,7 @@ public:
 
 protected:
     bool kinematic;
-    QPoint newPosition;
+    QPoint newPos;
     QPoint speed;
     QPoint restSpeed;
     int width;

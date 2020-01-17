@@ -24,17 +24,22 @@ void ArcItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
     int dotsize = 6;
     for (int i = 0; i < debugColl.size(); i++)
     {
-        QPoint top = debugColl[i].top;
-        QPoint left = debugColl[i].left;
-        QPoint right = debugColl[i].right;
-        QPoint bottom = debugColl[i].bottom;
+        QPoint top = debugColl[i].points[SIDE_TOP];
+        QPoint left = debugColl[i].points[SIDE_LEFT];
+        QPoint right = debugColl[i].points[SIDE_RIGHT];
+        QPoint bottom = debugColl[i].points[SIDE_BOTTOM];
         painter->drawEllipse(top.x()    - pos().x() - dotsize/2, top.y()    - pos().y() - dotsize/2, dotsize, dotsize);
         painter->drawEllipse(left.x()   - pos().x() - dotsize/2, left.y()   - pos().y() - dotsize/2, dotsize, dotsize);
         painter->drawEllipse(right.x()  - pos().x() - dotsize/2, right.y()  - pos().y() - dotsize/2, dotsize, dotsize);
         painter->drawEllipse(bottom.x() - pos().x() - dotsize/2, bottom.y() - pos().y() - dotsize/2, dotsize, dotsize);
     }
     painter->setPen(Qt::green);
-    painter->drawLine(width/2, height/2, width/2 + speed.x()*10, height/2 + speed.y()*10);
+//    painter->drawLine(width/2, height/2, width/2 + speed.x()*10, height/2 + speed.y()*10);
+    painter->drawLine(QPoint(width/2, height/2), speedEdgePos);
+    painter->drawLine(speedEdgePos, speedEndPos);
+    painter->setBrush(Qt::darkGreen);
+    painter->drawEllipse(speedEndPos, dotsize/2, dotsize/2);
+
 }
 
 QRectF ArcItem::boundingRect() const
@@ -46,20 +51,38 @@ QRectF ArcItem::boundingRect() const
 void ArcItem::updateItem()
 {
     if (isKinematic())
-        this->setPos(pos() + speed);
+    {
+        newPos = speed + QPoint(this->x(), this->y());
+        this->setPos(newPos);
+    }
 }
 
-int ArcItem::gotPoint(QRectF borders)
+void ArcItem::calcSpeedPoints()
+{
+    // parts of speed before and after collision
+    QPoint vecBefore;
+    QPoint vecAfter;
+    for (int i = 0; i < debugColl.size(); i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            QPoint p = debugColl.at(i).points[j];
+            int length = ;
+        }
+    }
+}
+
+int ArcItem::collIsInRect(QRectF borders)
 {
     for (int i = 0; i < debugColl.size(); i++)
     {
-        if (borders.contains(debugColl.at(i).top))
+        if (borders.contains(debugColl.at(i).points[SIDE_TOP]))
             return HORIZONTAL;
-        if (borders.contains(debugColl.at(i).bottom))
+        if (borders.contains(debugColl.at(i).points[SIDE_BOTTOM]))
             return HORIZONTAL;
-        if (borders.contains(debugColl.at(i).left))
+        if (borders.contains(debugColl.at(i).points[SIDE_LEFT]))
             return VERTICAL;
-        if (borders.contains(debugColl.at(i).right))
+        if (borders.contains(debugColl.at(i).points[SIDE_RIGHT]))
             return VERTICAL;
     }
     return -1;
