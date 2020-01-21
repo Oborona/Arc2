@@ -13,12 +13,12 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent)
     layout->addWidget(view, 0, 0);
 
     manager = new ItemManager();
-    manager->setBorders(sceneBorders);
+//    manager->setBorders(sceneBorders);
     setupEnviroment();
 
     timer = new QTimer;
     connect(timer, SIGNAL(timeout()), this, SLOT(updateEnviroment()));
-    timer->start(100);
+    timer->start(100*TIME_LATENCY);
 }
 
 void MainWindow::setupEnviroment()
@@ -53,38 +53,38 @@ void MainWindow::setupEnviroment()
 
 
     i = new ArcItem();
-    i->setPos(100, 100);
+    i->setPos(100, 80);
     i->setSize(20, 20);
     i->setKinematic(true);
     i->setName("First ball");
-    i->setSpeed(QPoint(3, 8));
+    i->setSpeed(QPoint(3*TIME_LATENCY, 8*TIME_LATENCY));
     scene->addItem(i);
     manager->addActor(i);
 
     i = new ArcItem();
-    i->setPos(250, 180);
+    i->setPos(260, 180);
     i->setSize(30, 30);
     i->setKinematic(true);
     i->setName("Second ball");
-    i->setSpeed(QPoint(-5, 1));
+    i->setSpeed(QPoint(-5*TIME_LATENCY, 1*TIME_LATENCY));
     scene->addItem(i);
     manager->addActor(i);
 
-    i = new ArcItem();
-    i->setPos(100, 200);
-    i->setSize(100, 30);
-    i->setName("First rect");
-    i->setSpeed(QPoint(0, 0));
-    scene->addItem(i);
-    manager->addActor(i);
+//    i = new ArcItem();
+//    i->setPos(100, 200);
+//    i->setSize(100, 30);
+//    i->setName("First rect");
+//    i->setSpeed(QPoint(0, 0));
+//    scene->addItem(i);
+//    manager->addActor(i);
 
-    i = new ArcItem();
-    i->setPos(100, 300);
-    i->setSize(100, 30);
-    i->setName("Second rect");
-    i->setSpeed(QPoint(0, 0));
-    scene->addItem(i);
-    manager->addActor(i);
+//    i = new ArcItem();
+//    i->setPos(100, 300);
+//    i->setSize(100, 30);
+//    i->setName("Second rect");
+//    i->setSpeed(QPoint(0, 0));
+//    scene->addItem(i);
+//    manager->addActor(i);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -95,7 +95,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void MainWindow::updateEnviroment()
 {
-    manager->checkCollisions();
+//    manager->checkCollisions();
     manager->advance();
     scene->update(scene->sceneRect());
 }

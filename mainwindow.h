@@ -11,6 +11,9 @@
 #include "arcitem.h"
 #include "itemmanager.h"
 
+// making refresh rate slowly and speed higher
+#define TIME_LATENCY 10
+
 class MainWindow : public QWidget
 {
     Q_OBJECT
