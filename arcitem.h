@@ -14,6 +14,8 @@
 #define HORIZONTAL 1
 
 
+
+
 struct Collision4x
 {
     QList<QPoint> points;
@@ -30,6 +32,8 @@ struct Collision4x
 //    }
 };
 
+QPoint linesCross(QPoint p11, QPoint p12, QPoint p21, QPoint p22, bool &ok);
+
 class ArcItem : public QGraphicsItem
 {
 public:
@@ -37,7 +41,7 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     QRectF boundingRect() const;
-    int checkCollision(QRectF coords);
+    int checkCollision(ArcItem* other);
     void updateItem();
     void moveItem();
 
@@ -58,12 +62,17 @@ public:
     QPoint speedEndPos;
     QPoint speedEdge;
     QPoint center;
+    QList<QPoint> colls;
 
     // Setters
     void setName(QString nn) { name = nn; }
     void setSize (int w, int h) { width = w, height = h; center.setX(width/2); center.setY(height/2); }
     void setSpeed (QPoint p) { speed = p; }
     void setKinematic(bool b) { kinematic = b; }
+
+    // Misc
+    void clearColls() { colls.clear(); }
+    void addColl (QPoint c) { colls.append(c); }
 
 protected:
     bool kinematic;

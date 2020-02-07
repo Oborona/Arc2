@@ -19,13 +19,13 @@ void ItemManager::checkCollisions()
     {
         if (!actors[i]->isKinematic())
             continue;
-        for (int j = 0; j < actors.size(); i++)
+        for (int j = 0; j < actors.size(); j++)
         {
             if (j == i)
                 continue;
             if (actors[j]->isKinematic())
                 continue;
-            int res = actors[i]->checkCollision(actors[j]->boundingRect());
+            int res = actors[i]->checkCollision(actors[j]);
             if (res == -1)
                 continue;
         }

@@ -26,47 +26,50 @@ void MainWindow::setupEnviroment()
     // Scene border items
     int offset = 50;
     ArcItem* i = new ArcItem();
+    i->setName("Left border");
     i->setSize(offset, sceneBorders.height());
     i->setPos(-offset, 0);
     scene->addItem(i);
     manager->addActor(i);
 
-    i = new ArcItem();
-    i->setSize(offset, sceneBorders.height());
-    i->setPos(sceneBorders.width(), 0);
-    scene->addItem(i);
-    manager->addActor(i);
+//    i = new ArcItem();
+//    i->setName("Right border");
+//    i->setSize(offset, sceneBorders.height());
+//    i->setPos(sceneBorders.width(), 0);
+//    scene->addItem(i);
+//    manager->addActor(i);
 
-    i = new ArcItem();
-    i->setSize(sceneBorders.width(), offset);
-    i->setPos(0, -offset);
-    scene->addItem(i);
-    manager->addActor(i);
+//    i = new ArcItem();
+//    i->setName("Top border");
+//    i->setSize(sceneBorders.width(), offset);
+//    i->setPos(0, -offset);
+//    scene->addItem(i);
+//    manager->addActor(i);
 
-    i = new ArcItem();
-    i->setSize(sceneBorders.width(), offset);
-    i->setPos(0, sceneBorders.height());
-    scene->addItem(i);
-    manager->addActor(i);
+//    i = new ArcItem();
+//    i->setName("Bottom border");
+//    i->setSize(sceneBorders.width(), offset);
+//    i->setPos(0, sceneBorders.height());
+//    scene->addItem(i);
+//    manager->addActor(i);
 
 
 
-
-    i = new ArcItem();
-    i->setPos(100, 80);
-    i->setSize(20, 20);
-    i->setKinematic(true);
-    i->setName("First ball");
-    i->setSpeed(QPoint(3*TIME_LATENCY, 8*TIME_LATENCY));
-    scene->addItem(i);
-    manager->addActor(i);
+//    i = new ArcItem();
+//    i->setPos(100, 80);
+//    i->setSize(20, 20);
+//    i->setKinematic(true);
+//    i->setName("First ball");
+//    i->setSpeed(QPoint(3*TIME_LATENCY, 8*TIME_LATENCY));
+//    scene->addItem(i);
+//    manager->addActor(i);
 
     i = new ArcItem();
     i->setPos(260, 180);
     i->setSize(30, 30);
     i->setKinematic(true);
     i->setName("Second ball");
-    i->setSpeed(QPoint(-5*TIME_LATENCY, 1*TIME_LATENCY));
+    i->setSpeed(QPoint(-8*TIME_LATENCY, 2*TIME_LATENCY));
     scene->addItem(i);
     manager->addActor(i);
 
@@ -95,8 +98,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void MainWindow::updateEnviroment()
 {
-//    manager->checkCollisions();
     manager->advance();
+    manager->checkCollisions();
     scene->update(scene->sceneRect());
 }
 
