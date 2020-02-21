@@ -32,6 +32,8 @@ struct Collision4x
 //    }
 };
 
+int vectorLength(QPoint p);
+int vectorLength(QPoint p1, QPoint p2);
 QPoint linesCross(QPoint p11, QPoint p12, QPoint p21, QPoint p22, bool &ok);
 
 class ArcItem : public QGraphicsItem

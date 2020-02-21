@@ -28,7 +28,7 @@ void MainWindow::setupEnviroment()
     ArcItem* i = new ArcItem();
     i->setName("Left border");
     i->setSize(offset, sceneBorders.height());
-    i->setPos(-offset, 0);
+    i->setPos(10, 0);
     scene->addItem(i);
     manager->addActor(i);
 

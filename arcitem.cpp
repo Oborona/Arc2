@@ -1,5 +1,7 @@
 #include "arcitem.h"
 
+const int DOTSIZE = 4;
+
 ArcItem::ArcItem()
 {
    kinematic = false;
@@ -28,10 +30,15 @@ void ArcItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
         qDebug() << "Colls";
         for (int i = 0; i < colls.size(); i++)
             qDebug() << colls[i];
+        painter->setBrush(Qt::darkRed);
+        for (int i = 0; i < colls.size(); i++)
+            painter->drawEllipse(colls.at(i) - QPoint(x(), y()), DOTSIZE, DOTSIZE);
+
+        for (int i = 0; i < colls.size(); i++)
+            ;
     }
 
-    for (int i = 0; i < colls.size(); i++)
-        painter->drawEllipse(colls.at(i) - QPoint(3, 3), 6, 6);
+
 
     if (isKinematic())
     {
@@ -72,22 +79,21 @@ int ArcItem::checkCollision(ArcItem *other)
 //    yDistance = qAbs(by - y());
 //    if (yDistance > qAbs(speed.y()))
 //        return -1;
-
+    QPoint center(x() + width/2, y() + height/2);
     QPoint p;
     // checking rect flanks
     bool ok = false;
-    p = linesCross(QPoint(x(), y()), speedEndPos + QPoint(x(), y()), QPoint(bx, by), QPoint(bx, by + bheight), ok);
-    qDebug() << "1111" << p << ok << "___" << pos() << speedEndPos + QPoint(x(), y()) << QPoint(bx + bwidth, by) << QPoint(bx + bwidth, by + bheight);
+    p = linesCross(center, speedEndPos + center, QPoint(bx, by), QPoint(bx, by + bheight), ok);
     if (ok == true)
         other->addColl(p);
-    return 1;
-    p = linesCross(QPoint(x(), y()), speedEndPos + QPoint(x(), y()), QPoint(bx, by), QPoint(bx + bwidth, by), ok);
+    p = linesCross(center, speedEndPos + center, QPoint(bx, by), QPoint(bx + bwidth, by), ok);
     if (ok == true)
         other->addColl(p);
-    p = linesCross(QPoint(x(), y()), speedEndPos + QPoint(x(), y()), QPoint(bx + bwidth, by), QPoint(bx + bwidth, by + bheight), ok);
+    p = linesCross(center, speedEndPos + center, QPoint(bx + bwidth, by), QPoint(bx + bwidth, by + bheight), ok);
     if (ok == true)
         other->addColl(p);
-    p = linesCross(QPoint(x(), y()), speedEndPos + QPoint(x(), y()), QPoint(bx, by + bheight), QPoint(bx, by + bheight), ok);
+        qDebug() << "p:" << p;
+    p = linesCross(center, speedEndPos + center, QPoint(bx, by + bheight), QPoint(bx, by + bheight), ok);
     if (ok == true)
         other->addColl(p);
     return 1;
@@ -101,6 +107,15 @@ void ArcItem::updateItem()
 void ArcItem::moveItem()
 {
     setPos(QPoint(x(), y()) + speed);
+}
+
+int
+
+int vectorLength(QPoint p1, QPoint p2)
+{
+    int x = p1.x() - p2.x();
+    int y = p1.y() - p2.y();
+    return qSqrt(x*x + y*y);
 }
 
 QPoint linesCross(QPoint p11, QPoint p12, QPoint p21, QPoint p22, bool &ok)
@@ -117,9 +132,10 @@ QPoint linesCross(QPoint p11, QPoint p12, QPoint p21, QPoint p22, bool &ok)
     float k2 = (p21y - p22y)/float(p21x - p22x);
     float b2 = (p21x*p22y - p22x*p21y)/float(p21x - p22x);
 
-    if (debug) qDebug () << "p1" << k1 << b1;
-    if (debug) qDebug () << "p2" << k2 << b2;
+    if (debug) qDebug () << "p1" << "k1, b1 =" << k1 << b1;
+    if (debug) qDebug () << "p2" << "k2, b2 =" << k2 << b2;
 
+    // Got some glitch with horizontal speed, but it's may be impossible
 
     if (k1 == k2)// && b1 != b2) we assume that complete match is very very rare
     {
@@ -130,9 +146,9 @@ QPoint linesCross(QPoint p11, QPoint p12, QPoint p21, QPoint p22, bool &ok)
     if (p11x == p12x)
     {
         int crossy = k2*p12x + b2;
-        if (debug) qDebug() << "Crossy:" << QPoint(p12x, crossy);
-//        if (debug) qDebug() << p11y << p12y << crossy;
-        if (crossy > qMin(p21y, p22y) && crossy < qMax(p21y, p22y))
+        if (debug) qDebug() << "Crossy (1-vertical):" << QPoint(p12x, crossy);
+        if (debug) qDebug() << "miny, maxy:" << qMin(p21y, p22y) << qMax(p21y, p22y);
+        if (crossy >= qMin(p21y, p22y) && crossy <= qMax(p21y, p22y))
         {
             ok = true;
             return QPoint(p11.x(), crossy);
@@ -146,8 +162,8 @@ QPoint linesCross(QPoint p11, QPoint p12, QPoint p21, QPoint p22, bool &ok)
     if (p21x == p22x)
     {
         int crossy = k1*p22x + b1;
-        if (debug) qDebug() << "Cross:" << QPoint(p22x, crossy);
-        if (crossy > qMin(p11y, p12y) && crossy < qMax(p11y, p12y))
+        if (debug) qDebug() << "Crossy (2-vertical):" << QPoint(p22x, crossy);
+        if (crossy >= qMin(p11y, p12y) && crossy <= qMax(p11y, p12y))
         {
             ok = true;
             return QPoint(p21.x(), crossy);
