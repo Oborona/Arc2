@@ -5,14 +5,12 @@ const int DOTSIZE = 4;
 ArcItem::ArcItem()
 {
    kinematic = false;
-   speedEndPos.setX(pos().x());
-   speedEndPos.setY(pos().y());
 }
 
 void ArcItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
     painter->setPen(Qt::black);
     painter->setBrush(Qt::blue);
     painter->drawRect(boundingRect());
@@ -21,24 +19,19 @@ void ArcItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
     {
         painter->setBrush(Qt::darkBlue);
         painter->drawEllipse(boundingRect());
+        painter->setPen(Qt::green);
+        painter->drawLine(center, speed + center);
     }
-    painter->setPen(Qt::green);
-    painter->drawLine(center, speedEndPos + center);
-    qDebug() << name;
+
     if (colls.size() > 0)
     {
-        qDebug() << "Colls";
-        for (int i = 0; i < colls.size(); i++)
-            qDebug() << colls[i];
         painter->setBrush(Qt::darkRed);
         for (int i = 0; i < colls.size(); i++)
-            painter->drawEllipse(colls.at(i) - QPoint(x(), y()), DOTSIZE, DOTSIZE);
+            painter->drawEllipse(colls.at(i) - QPoint(int(x()), int(y())), DOTSIZE, DOTSIZE);
 
-        for (int i = 0; i < colls.size(); i++)
-            ;
     }
-
-
+    painter->setBrush(Qt::blue);
+    painter->drawEllipse(speedEdge - pos(), DOTSIZE, DOTSIZE);
 
     if (isKinematic())
     {
@@ -47,8 +40,15 @@ void ArcItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
         pen.setColor(Qt::black);
         painter->setPen(pen);
         painter->setBrush(Qt::transparent);
-        painter->drawRect(speedEndPos.x(), speedEndPos.y(), width, height);
+        painter->drawRect(speedEnd.x(), speedEnd.y(), width, height);
+
+        painter->setPen(Qt::magenta);
+        painter->drawLine(center, speedEdge + center);
+        painter->setPen(Qt::yellow);
+        painter->drawLine(speedEdge + center, speedEnd + center);
+
     }
+//    painter->drawLine(speedEdge, speedEnd);
 
 }
 
@@ -63,10 +63,12 @@ int ArcItem::checkCollision(ArcItem *other)
 ////    qDebug() << "checking collisions" << this->name << other->name;
     // to not to collect extra points
     other->clearColls();
-    int bx = other->x();
-    int by = other->y();
+    int bx = int(other->x());
+    int by = int(other->y());
     int bwidth = other->getWidth();
     int bheight = other->getHeight();
+
+    {
 //    qDebug() << name << bx << by << "this" << x() << y();
 
     // If too far -- exit
@@ -79,39 +81,126 @@ int ArcItem::checkCollision(ArcItem *other)
 //    yDistance = qAbs(by - y());
 //    if (yDistance > qAbs(speed.y()))
 //        return -1;
-    QPoint center(x() + width/2, y() + height/2);
+    }
+
+    QPoint center(int(x() + width/2), int(y() + height/2));
     QPoint p;
     // checking rect flanks
     bool ok = false;
-    p = linesCross(center, speedEndPos + center, QPoint(bx, by), QPoint(bx, by + bheight), ok);
+    p = linesCross(center, speedEnd + center, QPoint(bx, by), QPoint(bx, by + bheight), ok);
     if (ok == true)
         other->addColl(p);
-    p = linesCross(center, speedEndPos + center, QPoint(bx, by), QPoint(bx + bwidth, by), ok);
+    p = linesCross(center, speedEnd + center, QPoint(bx, by), QPoint(bx + bwidth, by), ok);
     if (ok == true)
         other->addColl(p);
-    p = linesCross(center, speedEndPos + center, QPoint(bx + bwidth, by), QPoint(bx + bwidth, by + bheight), ok);
+    p = linesCross(center, speedEnd + center, QPoint(bx + bwidth, by), QPoint(bx + bwidth, by + bheight), ok);
     if (ok == true)
         other->addColl(p);
         qDebug() << "p:" << p;
-    p = linesCross(center, speedEndPos + center, QPoint(bx, by + bheight), QPoint(bx, by + bheight), ok);
+    p = linesCross(center, speedEnd + center, QPoint(bx, by + bheight), QPoint(bx, by + bheight), ok);
     if (ok == true)
         other->addColl(p);
+
+    if (!other->colls.isEmpty())
+        calcSpeedEnd(other);
+    else
+    {
+        speedEnd = speed;
+        speedEdge = speedEnd;
+    }
+
+
     return 1;
+}
+
+void ArcItem::calcSpeedEnd(ArcItem *other)
+{
+    double distance = -1;
+    QPoint fin;
+    for (int i = 0; i < other->getColls()->size(); i++)
+    {
+        double d = vectorLength(other->getColls()->at(i), this->center);
+        if (i == 0)
+        {
+            distance = d;
+            fin = other->getColls()->at(i);
+        }
+        if (d < distance)
+        {
+            distance = d;
+            fin = other->getColls()->at(i);
+        }
+    }
+    speedEdge = fin - QPoint(int(x()), int(y())) - center;
+
+    if (other->collSide(fin) == SIDE_RIGHT)
+    {
+
+        int diff = abs(speed.x()) - abs(speedEdge.x());
+//        qDebug() << "diff:" << diff;
+        if (speed.y() == 0)
+        {
+            speedEnd.setX(speedEdge.x());
+            speedEnd.setY(speedEdge.y());
+        }
+        else
+        {
+            float coef = qAbs(speed.x()/speed.y());
+            speedEnd.setX(speedEdge.x() + diff);
+            speedEnd.setY(speedEdge.y() + int(speed.y()/coef));
+        }
+        speed.setX(-speed.x());
+
+    }
+    if (other->collSide(fin) == SIDE_LEFT)
+    {
+        int diff = abs(speed.x()) - abs(speedEdge.x());
+        qDebug() << "diff:" << diff;
+        if (speed.y() == 0)
+        {
+            speedEnd.setX(speedEdge.x());
+            speedEnd.setY(speedEdge.y());
+        }
+        else
+        {
+            float coef = qAbs(speed.x()/speed.y());
+            speedEnd.setX(speedEdge.x() + diff);
+            speedEnd.setY(speedEdge.y() + int(speed.y()/coef));
+        }
+    }
+//    qDebug() << "Distance:" << distance << "Point:" << fin;
+
 }
 
 void ArcItem::updateItem()
 {
-    speedEndPos = speed;
+    speedEnd = speed;
+    speedEdge = speed;
 }
 
 void ArcItem::moveItem()
 {
-    setPos(QPoint(x(), y()) + speed);
+    if (isKinematic())
+        setPos(speedEnd + QPoint(int(x()), int(y())));
+//    setPos(QPoint(int(x()), int(y())) + speed);
 }
 
-int
+int ArcItem::collSide(QPoint p)
+{
+    if (p.x() == int(x()) + width)
+        return SIDE_RIGHT;
+    if (p.x() == int(this->x()))
+        return SIDE_LEFT;
+    if (p.y() == int(this->y()) + height)
+        return SIDE_BOTTOM;
+    if (p.y() == int(this->y()))
+        return SIDE_TOP;
+    return -1;
+}
 
-int vectorLength(QPoint p1, QPoint p2)
+//int
+
+double vectorLength(QPoint p1, QPoint p2)
 {
     int x = p1.x() - p2.x();
     int y = p1.y() - p2.y();
@@ -122,10 +211,10 @@ QPoint linesCross(QPoint p11, QPoint p12, QPoint p21, QPoint p22, bool &ok)
 {
     int debug = 0;
     // Line formula of moving item
-    float p11x = p11.x(), p11y = p11.y();
-    float p12x = p12.x(), p12y = p12.y();
-    float p21x = p21.x(), p21y = p21.y();
-    float p22x = p22.x(), p22y = p22.y();
+    int p11x = p11.x(), p11y = p11.y();
+    int p12x = p12.x(), p12y = p12.y();
+    int p21x = p21.x(), p21y = p21.y();
+    int p22x = p22.x(), p22y = p22.y();
 
     float k1 = (p11y - p12y)/float(p11x - p12x);
     float b1 = (p11x*p12y - p12x*p11y)/float(p11x - p12x);
@@ -137,7 +226,7 @@ QPoint linesCross(QPoint p11, QPoint p12, QPoint p21, QPoint p22, bool &ok)
 
     // Got some glitch with horizontal speed, but it's may be impossible
 
-    if (k1 == k2)// && b1 != b2) we assume that complete match is very very rare
+    if (int(k1) == int(k2))// && b1 != b2) we assume that complete match is very very rare
     {
         ok = false;
         return QPoint(-1, -1);
@@ -145,13 +234,13 @@ QPoint linesCross(QPoint p11, QPoint p12, QPoint p21, QPoint p22, bool &ok)
 
     if (p11x == p12x)
     {
-        int crossy = k2*p12x + b2;
-        if (debug) qDebug() << "Crossy (1-vertical):" << QPoint(p12x, crossy);
+        float crossy = k2*p12x + b2;
+        if (debug) qDebug() << "Crossy (1-vertical):" << QPoint(p12x, int(crossy));
         if (debug) qDebug() << "miny, maxy:" << qMin(p21y, p22y) << qMax(p21y, p22y);
         if (crossy >= qMin(p21y, p22y) && crossy <= qMax(p21y, p22y))
         {
             ok = true;
-            return QPoint(p11.x(), crossy);
+            return QPoint(p11.x(), int(crossy));
         }
         else
         {
@@ -161,12 +250,12 @@ QPoint linesCross(QPoint p11, QPoint p12, QPoint p21, QPoint p22, bool &ok)
     }
     if (p21x == p22x)
     {
-        int crossy = k1*p22x + b1;
-        if (debug) qDebug() << "Crossy (2-vertical):" << QPoint(p22x, crossy);
+        float crossy = k1*p22x + b1;
+        if (debug) qDebug() << "Crossy (2-vertical):" << QPoint(p22x, int(crossy));
         if (crossy >= qMin(p11y, p12y) && crossy <= qMax(p11y, p12y))
         {
             ok = true;
-            return QPoint(p21.x(), crossy);
+            return QPoint(p21.x(), int(crossy));
         }
         else
         {
@@ -189,108 +278,9 @@ QPoint linesCross(QPoint p11, QPoint p12, QPoint p21, QPoint p22, bool &ok)
 
 
     QPoint res;
-    res.setX(cx);
-    res.setY(cy);
+    res.setX(int(cx));
+    res.setY(int(cy));
     ok = true;
     return res;
 }
 
-
-//void ArcItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-//{
-//    Q_UNUSED(option);
-//    Q_UNUSED(widget);
-//    painter->setPen(Qt::black);
-//    painter->setBrush(Qt::blue);
-//    painter->drawRect(boundingRect());
-
-//    if (isKinematic())
-//    {
-//        painter->setBrush(Qt::darkBlue);
-//        painter->drawEllipse(boundingRect());
-//    }
-
-//    // for debug
-//    painter->setBrush(Qt::red);
-//    int dotsize = 6;
-//    for (int i = 0; i < debugColl.size(); i++)
-//    {
-//        QPoint top = debugColl[i].points[SIDE_TOP];
-//        QPoint left = debugColl[i].points[SIDE_LEFT];
-//        QPoint right = debugColl[i].points[SIDE_RIGHT];
-//        QPoint bottom = debugColl[i].points[SIDE_BOTTOM];
-//        painter->drawEllipse(top.x()    - pos().x() - dotsize/2, top.y()    - pos().y() - dotsize/2, dotsize, dotsize);
-//        painter->drawEllipse(left.x()   - pos().x() - dotsize/2, left.y()   - pos().y() - dotsize/2, dotsize, dotsize);
-//        painter->drawEllipse(right.x()  - pos().x() - dotsize/2, right.y()  - pos().y() - dotsize/2, dotsize, dotsize);
-//        painter->drawEllipse(bottom.x() - pos().x() - dotsize/2, bottom.y() - pos().y() - dotsize/2, dotsize, dotsize);
-//    }
-
-//    painter->setPen(Qt::green);
-////    painter->drawLine(width/2, height/2, width/2 + speed.x()*10, height/2 + speed.y()*10);
-//    painter->drawLine(QPoint(width/2, height/2), speedEdgePos);
-//    painter->drawLine(speedEdgePos, speedEndPos);
-//    painter->setBrush(Qt::darkGreen);
-//    painter->drawEllipse(speedEndPos, dotsize/2, dotsize/2);
-
-//    // Future pos
-////    QPen pen;
-////    pen.setColor(Qt::black);
-////    pen.setStyle(Qt::DotLine);
-////    painter->drawRect(speedEndPos.x()-width/2, speedEndPos.y()-width/2, width, height);
-
-
-//}
-
-//QRectF ArcItem::boundingRect() const
-//{
-//    return QRect(0, 0, width, height);
-//}
-
-
-//void ArcItem::updateItem()
-//{
-//    if (isKinematic())
-//    {
-//        newPos = speed + QPoint(this->x(), this->y());
-//        this->setPos(newPos);
-//    }
-//}
-
-//void ArcItem::calcSpeedPoints()
-//{
-//    // parts of speed before and after collision
-//    QPoint vecBefore;
-//    QPoint vecAfter;
-//    for (int i = 0; i < debugColl.size(); i++)
-//    {
-//        for (int j = 0; j < 4; j++)
-//        {
-//            QPoint p = debugColl.at(i).points[j];
-////            int length = ;
-//        }
-//    }
-//}
-
-//int ArcItem::collIsInRect(QRectF borders)
-//{
-//    for (int i = 0; i < debugColl.size(); i++)
-//    {
-//        if (borders.contains(debugColl.at(i).points[SIDE_TOP]))
-//            return HORIZONTAL;
-//        if (borders.contains(debugColl.at(i).points[SIDE_BOTTOM]))
-//            return HORIZONTAL;
-//        if (borders.contains(debugColl.at(i).points[SIDE_LEFT]))
-//            return VERTICAL;
-//        if (borders.contains(debugColl.at(i).points[SIDE_RIGHT]))
-//            return VERTICAL;
-//    }
-//    return -1;
-//}
-
-//void ArcItem::invertSpeed(int dir)
-//{
-//    if (dir == VERTICAL)
-//        speed.setX(-speed.x());
-//    if (dir == HORIZONTAL)
-//        speed.setY(-speed.y());
-//}

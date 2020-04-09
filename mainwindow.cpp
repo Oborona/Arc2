@@ -32,12 +32,12 @@ void MainWindow::setupEnviroment()
     scene->addItem(i);
     manager->addActor(i);
 
-//    i = new ArcItem();
-//    i->setName("Right border");
-//    i->setSize(offset, sceneBorders.height());
-//    i->setPos(sceneBorders.width(), 0);
-//    scene->addItem(i);
-//    manager->addActor(i);
+    i = new ArcItem();
+    i->setName("Right border");
+    i->setSize(offset, sceneBorders.height());
+    i->setPos(sceneBorders.width()-200, 0);
+    scene->addItem(i);
+    manager->addActor(i);
 
 //    i = new ArcItem();
 //    i->setName("Top border");
@@ -94,12 +94,18 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape)
         this->close();
+    if (event->key() == Qt::Key_Space)
+    {
+        if (timer->isActive())
+            timer->stop();
+        else
+            timer->start(100*TIME_LATENCY);
+    }
 }
 
 void MainWindow::updateEnviroment()
 {
     manager->advance();
-    manager->checkCollisions();
     scene->update(scene->sceneRect());
 }
 

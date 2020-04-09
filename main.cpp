@@ -2,17 +2,17 @@
 
 #include "mainwindow.h"
 
-bool af(bool &a)
-{
-    return true;
-}
+//bool af(bool &a)
+//{
+//    return true;
+//}
 
-void switchNum(int &a, int &b)
-{
-    int rem = a;
-    a = b;
-    b = rem;
-}
+//void switchNum(int &a, int &b)
+//{
+//    int rem = a;
+//    a = b;
+//    b = rem;
+//}
 
 int main(int ac, char** av)
 {
