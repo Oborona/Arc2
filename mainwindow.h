@@ -12,14 +12,17 @@
 #include "itemmanager.h"
 
 // making refresh rate slowly and speed higher
-#define TIME_LATENCY 10
+#define TIME_LATENCY 1
 
 class MainWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     QRect sceneBorders;
+
+    // For Debug
+    int appTime = 0;
 
     QGridLayout* layout;
     QGraphicsView* view;

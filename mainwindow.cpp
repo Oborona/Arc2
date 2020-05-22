@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent)
 
     timer = new QTimer;
     connect(timer, SIGNAL(timeout()), this, SLOT(updateEnviroment()));
-    timer->start(100*TIME_LATENCY);
+    timer->start(50*TIME_LATENCY);
 }
 
 void MainWindow::setupEnviroment()
@@ -29,6 +29,7 @@ void MainWindow::setupEnviroment()
     i->setName("Left border");
     i->setSize(offset, sceneBorders.height());
     i->setPos(10, 0);
+    i->addSetting("Indestructible");
     scene->addItem(i);
     manager->addActor(i);
 
@@ -36,58 +37,61 @@ void MainWindow::setupEnviroment()
     i->setName("Right border");
     i->setSize(offset, sceneBorders.height());
     i->setPos(sceneBorders.width()-200, 0);
+    i->addSetting("Indestructible");
     scene->addItem(i);
     manager->addActor(i);
-
-//    i = new ArcItem();
-//    i->setName("Top border");
-//    i->setSize(sceneBorders.width(), offset);
-//    i->setPos(0, -offset);
-//    scene->addItem(i);
-//    manager->addActor(i);
-
-//    i = new ArcItem();
-//    i->setName("Bottom border");
-//    i->setSize(sceneBorders.width(), offset);
-//    i->setPos(0, sceneBorders.height());
-//    scene->addItem(i);
-//    manager->addActor(i);
-
-
-
-//    i = new ArcItem();
-//    i->setPos(100, 80);
-//    i->setSize(20, 20);
-//    i->setKinematic(true);
-//    i->setName("First ball");
-//    i->setSpeed(QPoint(3*TIME_LATENCY, 8*TIME_LATENCY));
-//    scene->addItem(i);
-//    manager->addActor(i);
 
     i = new ArcItem();
-    i->setPos(260, 180);
-    i->setSize(30, 30);
-    i->setKinematic(true);
-    i->setName("Second ball");
-    i->setSpeed(QPoint(-8*TIME_LATENCY, 2*TIME_LATENCY));
+    i->setName("Top border");
+    i->setSize(sceneBorders.width(), offset);
+    i->setPos(0, 40-offset);
+    i->addSetting("Indestructible");
     scene->addItem(i);
     manager->addActor(i);
 
-//    i = new ArcItem();
-//    i->setPos(100, 200);
-//    i->setSize(100, 30);
-//    i->setName("First rect");
-//    i->setSpeed(QPoint(0, 0));
-//    scene->addItem(i);
-//    manager->addActor(i);
+    i = new ArcItem();
+    i->setName("Bottom border");
+    i->setSize(sceneBorders.width(), offset);
+    i->setPos(0, sceneBorders.height()-300);
+    i->addSetting("Indestructible");
+    scene->addItem(i);
+    manager->addActor(i);
 
-//    i = new ArcItem();
-//    i->setPos(100, 300);
-//    i->setSize(100, 30);
-//    i->setName("Second rect");
-//    i->setSpeed(QPoint(0, 0));
-//    scene->addItem(i);
-//    manager->addActor(i);
+
+    i = new ArcItem();
+    i->setPos(100, 80);
+    i->setSize(20, 20);
+    i->setName("First ball");
+    i->setSpeed(QPoint(3*TIME_LATENCY, 8*TIME_LATENCY));
+    i->addSetting("Kinematic");
+    scene->addItem(i);
+    manager->addActor(i);
+
+    i = new ArcItem();
+    i->setPos(230, 170);
+    i->setSize(20, 20);
+    i->setName("Second ball");
+    i->setSpeed(QPoint(8*TIME_LATENCY, -4*TIME_LATENCY));
+    i->addSetting("Kinematic");
+    scene->addItem(i);
+    manager->addActor(i);
+
+    i = new ArcItem();
+    i->setPos(100, 200);
+    i->setSize(100, 30);
+    i->setName("First rect");
+    i->setSpeed(QPoint(0, 0));
+    scene->addItem(i);
+    manager->addActor(i);
+
+
+    i = new ArcItem();
+    i->setPos(200, 250);
+    i->setSize(100, 30);
+    i->setName("Second rect");
+    i->setSpeed(QPoint(0, 0));
+    scene->addItem(i);
+    manager->addActor(i);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -99,12 +103,20 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         if (timer->isActive())
             timer->stop();
         else
-            timer->start(100*TIME_LATENCY);
+            timer->start(50*TIME_LATENCY);
     }
+    if (event->key() == Qt::Key_Enter)
+    {
+        scene->clear();
+        setupEnviroment();
+    }
+
 }
 
 void MainWindow::updateEnviroment()
 {
+//    manager->update();
+    qDebug() << "Time:" << appTime++;
     manager->advance();
     scene->update(scene->sceneRect());
 }

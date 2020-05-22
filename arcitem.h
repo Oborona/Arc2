@@ -13,25 +13,6 @@
 #define VERTICAL 0
 #define HORIZONTAL 1
 
-
-
-
-struct Collision4x
-{
-    QList<QPoint> points;
-
-//    bool operator ==(const Collision4x& b) const
-//    {
-//        if (this->top    == b.top   &&
-//            this->left   == b.left  &&
-//            this->right  == b.right &&
-//            this->bottom == b.bottom)
-//            return true;
-//        else
-//            return false;
-//    }
-};
-
 int vectorLength(QPoint p);
 double vectorLength(QPoint p1, QPoint p2);
 QPoint linesCross(QPoint p11, QPoint p12, QPoint p21, QPoint p22, bool &ok);
@@ -44,25 +25,27 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     QRectF boundingRect() const;
     int checkCollision(ArcItem* other);
-    void calcSpeedEnd(ArcItem *other);
+    void calcSpeedEnd(ArcItem *other, int side);
     void updateItem();
     void moveItem();
-
+    void interact(ArcItem* other);
 
     // Getters
     QString getName() { return name; }
-    bool isKinematic() { return kinematic; }
     QPoint getSpeed() { return speed; }
     QPoint getSize() { return QPoint(width, height); }
     int getWidth() { return width; }
     int getHeight() { return height; }
     QPoint getCenter() { return QPoint(int(x()+ width/2), int(y()+height/2)); }
     double speedModule() { return qSqrt(speed.x()*speed.x() + speed.y()*speed.y()); }
+    int getHp() { return hp; }
 
     // for debug
     QString name;
     QPoint speedEnd;
     QPoint speedEdge;
+    QPoint oldSpeedEnd;
+    QPoint oldSpeedEdge;
     QPoint center;
     QList<QPoint> colls;
 
@@ -74,71 +57,29 @@ public:
                                speedEnd.setY(speed.y());
                                speedEdge = speedEnd;
                              }
-    void setKinematic(bool b) { kinematic = b; }
+    void setHp(int nhp) { hp = nhp; }
+
+    // Settings system
+    QStringList settings;
+    bool gotSetting(QString str);
+    int addSetting(QString str);
+    int removeSetting(QString str);
 
     // Misc
     void clearColls() { colls.clear(); }
     void addColl (QPoint c) { colls.append(c); }
     QList<QPoint>* getColls() { return &colls; }
-    int collSide(QPoint p);
+
+    // Game mechanics
+    void damage(int d);
 
 protected:
-    bool kinematic;
-    QPoint newPos;
     QPoint speed;
-    QPoint restSpeed;
+    QPoint oldSpeed;
     int width;
     int height;
+    int hp;
 
 };
-
-
-//class ArcItem : public QGraphicsItem
-//{
-//public:
-//    ArcItem();
-
-//    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-//    QRectF boundingRect() const;
-//    bool collidesWith(QRectF borders);
-//    void updateItem();
-//    void calcSpeedPoints();
-
-//    int collIsInRect(QRectF borders);
-
-//    // Getters
-//    QString getName() { return name; }
-//    bool isKinematic() { return kinematic; }
-//    QPoint getSpeed() { return speed; }
-//    QPoint getSize() { return QPoint(width, height); }
-//    int getWidth() { return width; }
-//    int getHeight() { return height; }
-//    QPoint getCenter() { return QPoint(x()+ width/2, y()+height/2); }
-//    void invertSpeed(int dir);
-//    int speedModule() { return qSqrt(speed.x()*speed.x() + speed.y()*speed.y()); }
-
-//    // for debug
-//    QString name;
-//    QList<Collision4x> debugColl;
-//    QPoint speedEdgePos;
-//    QPoint speedEndPos;
-//    void clearDebugColl() { debugColl.clear(); }
-//    void appendColl(Collision4x coll) { debugColl.append(coll); }
-
-//    // Setters
-//    void setName(QString nn) { name = nn; }
-//    void setSize (int w, int h) { width = w, height = h; }
-//    void setSpeed (QPoint p) { speed = p; }
-//    void setKinematic(bool b) { kinematic = b; }
-
-//protected:
-//    bool kinematic;
-//    QPoint newPos;
-//    QPoint speed;
-//    QPoint restSpeed;
-//    int width;
-//    int height;
-
-//};
 
 #endif // ARCITEM_H
